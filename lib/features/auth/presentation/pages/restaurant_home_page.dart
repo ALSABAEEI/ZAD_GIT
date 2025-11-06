@@ -6,11 +6,14 @@ import '../../../food/domain/entities/charity_proposal_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'charity_proposal_details_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../food/domain/entities/request_entity.dart';
 import '../../../food/presentation/bloc/request_bloc.dart';
 import '../../../food/data/models/request_model.dart';
+import '../../../food/domain/usecases/has_restaurant_applied_usecase.dart';
+import '../../../notifications/presentation/bloc/notification_bloc.dart';
+import '../../../notifications/presentation/pages/notifications_page.dart';
 import 'restaurant_requests_page.dart';
 import 'restaurant_profile_page.dart';
+import 'restaurant_my_listings_page.dart';
 import 'add_food_listing_page.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
 
@@ -23,6 +26,7 @@ class RestaurantHomePage extends StatefulWidget {
 
 class _RestaurantHomePageState extends State<RestaurantHomePage> {
   Set<String> _appliedProposals = {};
+  Map<String, String> _proposalIdToStatus = {};
 
   @override
   void initState() {
@@ -33,6 +37,8 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       context.read<RequestBloc>().add(LoadRequestsByRestaurant(user.uid));
+      // Load notification count
+      context.read<NotificationBloc>().add(LoadUnreadCount(user.uid));
     }
   }
 
@@ -62,6 +68,24 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                     backgroundColor: Colors.red,
                   ),
                 );
+              } else if (requestState is RequestsLoaded) {
+                // Build status map from loaded requests to drive UI
+                final statusMap = <String, String>{};
+                for (final r in requestState.requests) {
+                  statusMap[r.proposalId] = r.status;
+                }
+                setState(() {
+                  _proposalIdToStatus = statusMap;
+                  _appliedProposals = statusMap.keys.toSet();
+                });
+              } else if (requestState is RequestStatusUpdated) {
+                // Refresh requests to update local status map
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  context.read<RequestBloc>().add(
+                    LoadRequestsByRestaurant(user.uid),
+                  );
+                }
               }
             },
           ),
@@ -83,6 +107,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
               pinned: true,
               backgroundColor: Colors.transparent,
               elevation: 0,
+              actions: const [],
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
                   fit: StackFit.expand,
@@ -117,17 +142,75 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                       ),
                     ),
 
-                    // Floating Circles for Visual Interest
+                    // Notification button placed near top-right (replaces decorative circle)
                     Positioned(
                       top: 40,
-                      right: -20,
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
+                      right: 16,
+                      child: BlocBuilder<NotificationBloc, NotificationState>(
+                        builder: (context, state) {
+                          int unreadCount = 0;
+                          if (state is UnreadCountLoaded) {
+                            unreadCount = state.count;
+                          }
+
+                          return Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.notifications_outlined,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const NotificationsPage(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              if (unreadCount > 0)
+                                Positioned(
+                                  right: 8,
+                                  top: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 16,
+                                      minHeight: 16,
+                                    ),
+                                    child: Text(
+                                      unreadCount > 99
+                                          ? '99+'
+                                          : unreadCount.toString(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                     Positioned(
@@ -419,7 +502,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                           );
                         }
 
-                        // Filter out accepted proposals
+                        // Filter out accepted proposals (disappear from home)
                         final availableProposals = proposals
                             .where((proposal) => proposal.status != 'accepted')
                             .toList();
@@ -833,18 +916,37 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
 
   Widget _buildApplyButton(CharityProposalEntity proposal, bool isApplied) {
     if (isApplied) {
-      // Applied state - modern and fancy design
+      // Determine current request status from local map
+      final status = _proposalIdToStatus[proposal.id] ?? 'applied';
+
+      Color bg1;
+      Color bg2;
+      String label;
+      if (status == 'rejected') {
+        bg1 = Colors.red.shade500;
+        bg2 = Colors.red.shade700;
+        label = 'Rejected';
+      } else if (status == 'accepted') {
+        bg1 = Colors.green.shade400;
+        bg2 = Colors.teal.shade500;
+        label = 'Applied';
+      } else {
+        bg1 = Colors.grey.shade400;
+        bg2 = Colors.grey.shade600;
+        label = 'Applied';
+      }
+
       return Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.green.shade400, Colors.teal.shade500],
+            colors: [bg1, bg2],
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.green.withOpacity(0.3),
+              color: bg1.withOpacity(0.3),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -854,16 +956,16 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
           onPressed: null,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
-            foregroundColor: Colors.black,
+            foregroundColor: Colors.white,
             shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           ),
-          child: const Text(
-            'Applied',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           ),
         ),
       );
@@ -911,6 +1013,21 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('User not authenticated');
       print('APPLY: User authenticated: ${user.uid}');
+
+      // Prevent duplicate requests for the same proposal by this restaurant
+      final hasApplied = await context.read<HasRestaurantAppliedUseCase>().call(
+        proposal.id,
+        user.uid,
+      );
+      if (hasApplied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You have already applied to this proposal'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
 
       // Get restaurant name from user data
       final userDoc = await FirebaseFirestore.instance
@@ -998,13 +1115,26 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildNavItem(
                 icon: Icons.home_rounded,
                 label: 'Home',
                 isActive: true,
                 onTap: () {},
+              ),
+              _buildNavItem(
+                icon: Icons.restaurant_menu_rounded,
+                label: 'Listings',
+                isActive: false,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const RestaurantMyListingsPage(),
+                    ),
+                  );
+                },
               ),
               _buildNavItem(
                 icon: Icons.description_rounded,

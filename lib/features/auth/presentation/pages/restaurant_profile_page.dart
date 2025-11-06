@@ -19,7 +19,6 @@ class _RestaurantProfilePageState extends State<RestaurantProfilePage> {
   late TextEditingController _nameController;
   String? _email;
   String? _uid;
-  bool _saving = false;
 
   @override
   void initState() {
@@ -41,25 +40,10 @@ class _RestaurantProfilePageState extends State<RestaurantProfilePage> {
     return data;
   }
 
-  Future<void> _saveName() async {
-    if (_uid == null) return;
-    setState(() => _saving = true);
-    await FirebaseFirestore.instance.collection('users').doc(_uid).update({
-      'name': _nameController.text.trim(),
-    });
-    setState(() => _saving = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Name updated successfully!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
+  // Removed unused _saveName method
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
@@ -488,7 +472,7 @@ class _RestaurantProfilePageState extends State<RestaurantProfilePage> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildNavItem(
                 icon: Icons.home_rounded,
@@ -501,6 +485,19 @@ class _RestaurantProfilePageState extends State<RestaurantProfilePage> {
                       builder: (_) => const RestaurantHomePage(),
                     ),
                     (route) => false,
+                  );
+                },
+              ),
+              _buildNavItem(
+                icon: Icons.restaurant_menu_rounded,
+                label: 'Listings',
+                isActive: false,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const RestaurantMyListingsPage(),
+                    ),
                   );
                 },
               ),

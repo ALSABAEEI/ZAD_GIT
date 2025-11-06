@@ -6,6 +6,7 @@ import '../../../food/domain/entities/request_entity.dart';
 import '../../../food/presentation/bloc/request_bloc.dart';
 import 'restaurant_profile_page.dart';
 import 'restaurant_home_page.dart';
+import 'restaurant_my_listings_page.dart';
 import '../../../chat/domain/entities/chat_room_entity.dart';
 import '../../../chat/presentation/pages/chat_page.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
@@ -459,7 +460,7 @@ class _RestaurantRequestsPageState extends State<RestaurantRequestsPage> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildNavItem(
                 icon: Icons.home_rounded,
@@ -472,6 +473,19 @@ class _RestaurantRequestsPageState extends State<RestaurantRequestsPage> {
                       builder: (_) => const RestaurantHomePage(),
                     ),
                     (route) => false,
+                  );
+                },
+              ),
+              _buildNavItem(
+                icon: Icons.restaurant_menu_rounded,
+                label: 'Listings',
+                isActive: false,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const RestaurantMyListingsPage(),
+                    ),
                   );
                 },
               ),

@@ -13,6 +13,7 @@ import 'food_item_details_page.dart';
 import 'charity_reserved_page.dart';
 import 'charity_requests_page.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
+import '../../../notifications/presentation/pages/notifications_page.dart';
 
 class CharityHomePage extends StatefulWidget {
   const CharityHomePage({Key? key}) : super(key: key);
@@ -22,6 +23,7 @@ class CharityHomePage extends StatefulWidget {
 }
 
 class _CharityHomePageState extends State<CharityHomePage> {
+  String? _selectedCategory;
   @override
   void initState() {
     super.initState();
@@ -135,7 +137,13 @@ class _CharityHomePageState extends State<CharityHomePage> {
                                     size: 24,
                                   ),
                                   onPressed: () {
-                                    // TODO: Implement notifications
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const NotificationsPage(),
+                                      ),
+                                    );
                                   },
                                 ),
                               ),
@@ -248,22 +256,69 @@ class _CharityHomePageState extends State<CharityHomePage> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: _buildCategoryIcon(Icons.restaurant, 'Chicken'),
+                        child: _buildCategoryIcon(
+                          icon: Icons.rice_bowl,
+                          label: 'rice dish',
+                          isSelected: _selectedCategory == 'rice dish',
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = 'rice dish';
+                            });
+                          },
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: _buildCategoryIcon(Icons.cake, 'Desserts'),
+                        child: _buildCategoryIcon(
+                          icon: Icons.lunch_dining,
+                          label: 'Burgers',
+                          isSelected: _selectedCategory == 'Burgers',
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = 'Burgers';
+                            });
+                          },
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: _buildCategoryIcon(Icons.local_drink, 'Drinks'),
+                        child: _buildCategoryIcon(
+                          icon: Icons.outdoor_grill,
+                          label: 'Mashawi',
+                          isSelected: _selectedCategory == 'Mashawi',
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = 'Mashawi';
+                            });
+                          },
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: _buildCategoryIcon(Icons.local_pizza, 'Pizza'),
+                        child: _buildCategoryIcon(
+                          icon: Icons.cake,
+                          label: 'Dessert',
+                          isSelected: _selectedCategory == 'Dessert',
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = 'Dessert';
+                            });
+                          },
+                        ),
                       ),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildSeeAllButton()),
+                      Expanded(
+                        child: _buildCategoryIcon(
+                          icon: Icons.local_drink,
+                          label: 'Beverages',
+                          isSelected: _selectedCategory == 'Beverages',
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = 'Beverages';
+                            });
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -308,7 +363,19 @@ class _CharityHomePageState extends State<CharityHomePage> {
                         return foodItem.isAvailable;
                       }).toList();
 
-                      if (availableItems.isEmpty) {
+                      final filteredItems = _selectedCategory == null
+                          ? availableItems
+                          : availableItems.where((item) {
+                              final normalized = _normalizeCategoryLabel(
+                                _selectedCategory!,
+                              );
+                              final itemType = (item.foodType ?? '')
+                                  .trim()
+                                  .toLowerCase();
+                              return itemType == normalized;
+                            }).toList();
+
+                      if (filteredItems.isEmpty) {
                         return const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -350,9 +417,9 @@ class _CharityHomePageState extends State<CharityHomePage> {
                               crossAxisSpacing: 16,
                               mainAxisSpacing: 16,
                             ),
-                        itemCount: availableItems.length,
+                        itemCount: filteredItems.length,
                         itemBuilder: (context, index) {
-                          final foodItem = availableItems[index];
+                          final foodItem = filteredItems[index];
                           print(
                             'Building food card for: ${foodItem.name} with image: ${foodItem.imageUrl}',
                           );
@@ -377,43 +444,80 @@ class _CharityHomePageState extends State<CharityHomePage> {
     );
   }
 
-  Widget _buildCategoryIcon(IconData icon, String label) {
-    return Column(
-      children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [const Color(0xFFF1F5F9), const Color(0xFFE2E8F0)],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF64748B).withOpacity(0.08),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-                spreadRadius: 0,
+  Widget _buildCategoryIcon({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool isSelected = false,
+  }) {
+    final Color baseColor = const Color(0xFF475569);
+    final Color activeColor = const Color(0xFF1E40AF);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isSelected
+                    ? [const Color(0xFFEFF6FF), const Color(0xFFDBEAFE)]
+                    : [const Color(0xFFF1F5F9), const Color(0xFFE2E8F0)],
               ),
-            ],
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: (isSelected ? activeColor : baseColor).withOpacity(
+                    0.12,
+                  ),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                  spreadRadius: 0,
+                ),
+              ],
+              border: Border.all(
+                color: (isSelected ? activeColor : const Color(0xFFE2E8F0)),
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: isSelected ? activeColor : baseColor,
+              size: 28,
+            ),
           ),
-          child: Icon(icon, color: const Color(0xFF475569), size: 28),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF475569),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? activeColor : baseColor,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  String _normalizeCategoryLabel(String label) {
+    final value = label.trim().toLowerCase();
+    switch (value) {
+      case 'rice dish':
+      case 'rice dishes':
+      case 'meat & rice':
+      case 'meat and rice':
+        return 'rice dish';
+      default:
+        return value;
+    }
   }
 
   Widget _buildSeeAllButton() {

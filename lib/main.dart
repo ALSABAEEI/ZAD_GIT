@@ -28,6 +28,7 @@ import 'features/food/domain/usecases/cancel_reservation_usecase.dart';
 import 'features/food/domain/usecases/get_food_item_from_reservation_usecase.dart';
 import 'features/food/domain/usecases/get_requests_usecase.dart';
 import 'features/food/domain/usecases/get_requests_by_restaurant_usecase.dart';
+import 'features/food/domain/usecases/has_restaurant_applied_usecase.dart';
 import 'features/food/domain/usecases/create_request_usecase.dart';
 import 'features/food/domain/usecases/update_request_status_usecase.dart';
 import 'features/food/domain/usecases/get_restaurant_food_items_usecase.dart';
@@ -43,12 +44,16 @@ import 'features/chat/domain/usecases/send_message_usecase.dart';
 import 'features/chat/domain/usecases/create_chat_room_usecase.dart';
 import 'features/chat/presentation/bloc/chat_bloc.dart';
 
-// Chat feature
-import 'features/chat/data/repositories/chat_repository_impl.dart';
-import 'features/chat/domain/usecases/get_chat_rooms_usecase.dart';
-import 'features/chat/domain/usecases/send_message_usecase.dart';
-import 'features/chat/domain/usecases/create_chat_room_usecase.dart';
-import 'features/chat/presentation/bloc/chat_bloc.dart';
+// Notification feature
+import 'features/notifications/data/repositories/notification_repository_impl.dart';
+import 'features/notifications/domain/usecases/create_notification_usecase.dart';
+import 'features/notifications/domain/usecases/get_notifications_usecase.dart';
+import 'features/notifications/domain/usecases/get_unread_count_usecase.dart';
+import 'features/notifications/domain/usecases/mark_as_read_usecase.dart';
+import 'features/notifications/domain/services/notification_service.dart';
+import 'features/notifications/presentation/bloc/notification_bloc.dart';
+
+// Duplicate chat imports removed - using the ones above
 import 'features/food/presentation/bloc/food_bloc.dart';
 import 'features/food/presentation/bloc/charity_proposal_bloc.dart';
 import 'features/food/presentation/bloc/reservation_bloc.dart';
@@ -149,6 +154,30 @@ class MyApp extends StatelessWidget {
             context.read<ReservationRepositoryImpl>(),
           ),
         ),
+        // Notification repositories and use cases
+        RepositoryProvider(create: (context) => NotificationRepositoryImpl()),
+        RepositoryProvider(
+          create: (context) => CreateNotificationUseCase(
+            context.read<NotificationRepositoryImpl>(),
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => GetNotificationsUseCase(
+            context.read<NotificationRepositoryImpl>(),
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) =>
+              GetUnreadCountUseCase(context.read<NotificationRepositoryImpl>()),
+        ),
+        RepositoryProvider(
+          create: (context) =>
+              MarkAsReadUseCase(context.read<NotificationRepositoryImpl>()),
+        ),
+        RepositoryProvider(
+          create: (context) =>
+              NotificationService(context.read<CreateNotificationUseCase>()),
+        ),
         RepositoryProvider(
           create: (context) => GetFoodItemFromReservationUseCase(
             context.read<FoodRepositoryImpl>(),
@@ -160,6 +189,11 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => GetRequestsByRestaurantUseCase(
+            context.read<RequestRepositoryImpl>(),
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => HasRestaurantAppliedUseCase(
             context.read<RequestRepositoryImpl>(),
           ),
         ),
@@ -279,6 +313,16 @@ class MyApp extends StatelessWidget {
               sendMessageUseCase: context.read<SendMessageUseCase>(),
               createChatRoomUseCase: context.read<CreateChatRoomUseCase>(),
               chatRepository: context.read<ChatRepositoryImpl>(),
+            ),
+          ),
+          // Notification BLoC
+          BlocProvider(
+            create: (context) => NotificationBloc(
+              createNotificationUseCase: context
+                  .read<CreateNotificationUseCase>(),
+              getNotificationsUseCase: context.read<GetNotificationsUseCase>(),
+              getUnreadCountUseCase: context.read<GetUnreadCountUseCase>(),
+              markAsReadUseCase: context.read<MarkAsReadUseCase>(),
             ),
           ),
         ],

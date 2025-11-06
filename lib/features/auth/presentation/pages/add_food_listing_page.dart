@@ -9,7 +9,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:ui';
 import '../../../food/presentation/bloc/food_bloc.dart';
-import '../../../food/domain/entities/food_item_entity.dart';
 import '../../../food/data/models/food_item_model.dart';
 
 class AddFoodListingPage extends StatefulWidget {
@@ -26,12 +25,13 @@ class _AddFoodListingPageState extends State<AddFoodListingPage> {
   final _quantityController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _expirationHoursController = TextEditingController();
+  String? _selectedFoodType;
 
   File? _selectedImage;
   Uint8List? _selectedImageBytes;
   bool _isLoading = false;
   bool _isFree = false;
-  bool _imageSelected = false;
+  bool _imageSelected = false; // reserved for future UI hints
 
   @override
   Widget build(BuildContext context) {
@@ -400,6 +400,100 @@ class _AddFoodListingPageState extends State<AddFoodListingPage> {
                           ),
 
                           const SizedBox(height: 28),
+
+                          // Food Type Dropdown
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Food Type',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF1E40AF),
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              DropdownButtonFormField<String>(
+                                value: _selectedFoodType,
+                                items:
+                                    const [
+                                          'rice dish',
+                                          'Burgers',
+                                          'Mashawi',
+                                          'Dessert',
+                                          'Beverages',
+                                        ]
+                                        .map(
+                                          (type) => DropdownMenuItem(
+                                            value: type,
+                                            child: Text(type),
+                                          ),
+                                        )
+                                        .toList(),
+                                onChanged: (val) => setState(() {
+                                  _selectedFoodType = val;
+                                }),
+                                validator: (val) => val == null || val.isEmpty
+                                    ? 'Food Type is required'
+                                    : null,
+                                decoration: InputDecoration(
+                                  hintText: 'Select a food type',
+                                  hintStyle: TextStyle(
+                                    color: const Color(
+                                      0xFF64748B,
+                                    ).withOpacity(0.6),
+                                    fontSize: 14,
+                                  ),
+                                  prefixIcon: Container(
+                                    margin: const EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFF1E40AF,
+                                      ).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.category_rounded,
+                                      color: Color(0xFF1E40AF),
+                                      size: 18,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: const Color(
+                                        0xFF1E40AF,
+                                      ).withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: const Color(
+                                        0xFF1E40AF,
+                                      ).withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF1E40AF),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  filled: true,
+                                  fillColor: const Color(
+                                    0xFF1E40AF,
+                                  ).withOpacity(0.02),
+                                ),
+                              ),
+                            ],
+                          ),
 
                           // Description
                           _buildInputField(
@@ -889,6 +983,7 @@ class _AddFoodListingPageState extends State<AddFoodListingPage> {
         expirationHours: int.parse(_expirationHoursController.text),
         createdAt: DateTime.now(),
         isAvailable: true,
+        foodType: _selectedFoodType,
       );
 
       context.read<FoodBloc>().add(AddFoodItem(foodItem));

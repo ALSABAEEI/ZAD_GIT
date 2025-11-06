@@ -8,6 +8,7 @@ import '../../../food/presentation/bloc/reservation_bloc.dart';
 import '../../../chat/domain/entities/chat_room_entity.dart';
 import '../../../chat/presentation/pages/chat_page.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
+import '../../../notifications/domain/services/notification_service.dart';
 import 'charity_profile_page.dart';
 import 'charity_home_page.dart';
 import 'food_item_details_page.dart';
@@ -34,7 +35,6 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -670,13 +670,7 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
   }) {
     return GestureDetector(
       onTap: () {
-        if (index == 3) {
-          // Profile tab
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CharityProfilePage()),
-          );
-        } else if (index == 0) {
+        if (index == 0) {
           // Home tab - Navigate to home page instead of just popping
           Navigator.pushAndRemoveUntil(
             context,
@@ -697,6 +691,12 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ChatListPage()),
+          );
+        } else if (index == 4) {
+          // Profile tab
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CharityProfilePage()),
           );
         }
       },
@@ -805,12 +805,33 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
     );
   }
 
-  void _cancelReservation(BuildContext context, ReservationEntity reservation) {
+  void _cancelReservation(
+    BuildContext context,
+    ReservationEntity reservation,
+  ) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       context.read<ReservationBloc>().add(
         CancelReservation(reservation.id, user.uid),
       );
+
+      // Fire-and-forget: notify restaurant after cancellation is triggered
+      // This avoids any failure here blocking the cancel UX
+      Future.microtask(() async {
+        try {
+          final notificationService = context.read<NotificationService>();
+          await notificationService.createReservationCancelledNotification(
+            restaurantId: reservation.restaurantId,
+            foodItemName: reservation.foodItemName,
+            organizationName: reservation.charityName,
+            foodItemId: reservation.foodItemId,
+            reservationId: reservation.id,
+          );
+        } catch (e) {
+          // Log only; do not interrupt user flow
+          print('Failed to create cancellation notification: $e');
+        }
+      });
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(

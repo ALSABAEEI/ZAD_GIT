@@ -10,6 +10,7 @@ class FoodItemEntity {
   final DateTime createdAt;
   final bool isAvailable;
   final int expirationHours; // Hours until the food expires
+  final String? foodType; // e.g., Rice, Chicken, Meat, etc.
 
   FoodItemEntity({
     required this.id,
@@ -23,5 +24,6 @@ class FoodItemEntity {
     required this.createdAt,
     required this.isAvailable,
     required this.expirationHours,
+    this.foodType,
   });
 }

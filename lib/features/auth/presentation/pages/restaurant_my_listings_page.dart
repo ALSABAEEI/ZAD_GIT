@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:ui';
 import '../../../food/domain/entities/food_item_entity.dart';
 import '../../../food/presentation/bloc/restaurant_food_bloc.dart';
@@ -9,6 +10,8 @@ import 'restaurant_profile_page.dart';
 import 'restaurant_requests_page.dart';
 import 'add_food_listing_page.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
+import '../../../chat/presentation/pages/chat_page.dart';
+import '../../../chat/domain/entities/chat_room_entity.dart';
 
 class RestaurantMyListingsPage extends StatefulWidget {
   const RestaurantMyListingsPage({Key? key}) : super(key: key);
@@ -44,6 +47,7 @@ class _RestaurantMyListingsPageState extends State<RestaurantMyListingsPage> {
             pinned: true,
             backgroundColor: Colors.transparent,
             elevation: 0,
+            automaticallyImplyLeading: false,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
@@ -538,6 +542,47 @@ class _RestaurantMyListingsPageState extends State<RestaurantMyListingsPage> {
                     // Action buttons
                     Row(
                       children: [
+                        // Contact button for reserved items
+                        if (isReserved) ...[
+                          Tooltip(
+                            message:
+                                'Contact the charity that reserved this item',
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF10B981),
+                                    Color(0xFF059669),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF10B981,
+                                    ).withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: IconButton(
+                                onPressed: () => _contactCharity(foodItem),
+                                icon: const Icon(
+                                  Icons.chat_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                constraints: const BoxConstraints(
+                                  minWidth: 36,
+                                  minHeight: 36,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                         Tooltip(
                           message: isReserved
                               ? 'Cannot delete reserved items'
@@ -610,6 +655,60 @@ class _RestaurantMyListingsPageState extends State<RestaurantMyListingsPage> {
         ],
       ),
     );
+  }
+
+  void _contactCharity(FoodItemEntity foodItem) async {
+    try {
+      // Find the reservation for this food item to get charity details
+      final reservationsQuery = await FirebaseFirestore.instance
+          .collection('reservations')
+          .where('foodItemId', isEqualTo: foodItem.id)
+          .where('status', isEqualTo: 'accepted')
+          .limit(1)
+          .get();
+
+      if (reservationsQuery.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No reservation found for this item'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
+      final reservationData = reservationsQuery.docs.first.data();
+      final charityId = reservationData['charityId'] as String;
+      final charityName = reservationData['charityName'] as String;
+
+      // Create chat room entity
+      final chatRoom = ChatRoomEntity(
+        id: '${_restaurantId}_${charityId}_${foodItem.id}',
+        requestId: reservationData['id'] ?? '',
+        restaurantId: _restaurantId ?? '',
+        charityId: charityId,
+        restaurantName: 'Restaurant', // Will be updated from user data
+        charityName: charityName,
+        proposalTitle: foodItem.name,
+        createdAt: DateTime.now(),
+        isActive: true,
+        lastMessageAt: DateTime.now(),
+        lastMessageText: 'Reservation chat - Contact about pickup',
+      );
+
+      // Navigate to chat
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ChatPage(chatRoom: chatRoom)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error opening chat: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _showDeleteConfirmation(FoodItemEntity foodItem) {
@@ -719,7 +818,7 @@ class _RestaurantMyListingsPageState extends State<RestaurantMyListingsPage> {
                 _buildNavItem(
                   context,
                   index: 0,
-                  currentIndex: 3, // Profile is active
+                  currentIndex: 1, // My Listings is active
                   icon: Icons.home_rounded,
                   label: 'Home',
                   isActive: false,
@@ -727,26 +826,34 @@ class _RestaurantMyListingsPageState extends State<RestaurantMyListingsPage> {
                 _buildNavItem(
                   context,
                   index: 1,
-                  currentIndex: 3,
-                  icon: Icons.list_alt_rounded,
+                  currentIndex: 1,
+                  icon: Icons.restaurant_menu_rounded,
+                  label: 'Listings',
+                  isActive: true,
+                ),
+                _buildNavItem(
+                  context,
+                  index: 2,
+                  currentIndex: 1,
+                  icon: Icons.description_rounded,
                   label: 'Requests',
                   isActive: false,
                 ),
                 _buildNavItem(
                   context,
-                  index: 2,
-                  currentIndex: 3,
-                  icon: Icons.chat_rounded,
+                  index: 3,
+                  currentIndex: 1,
+                  icon: Icons.chat_bubble_rounded,
                   label: 'Chat',
                   isActive: false,
                 ),
                 _buildNavItem(
                   context,
-                  index: 3,
-                  currentIndex: 3,
+                  index: 4,
+                  currentIndex: 1,
                   icon: Icons.person_rounded,
                   label: 'Profile',
-                  isActive: true,
+                  isActive: false,
                 ),
               ],
             ),
@@ -767,22 +874,29 @@ class _RestaurantMyListingsPageState extends State<RestaurantMyListingsPage> {
     return GestureDetector(
       onTap: () {
         if (index == 0) {
+          // Home
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (_) => const RestaurantHomePage()),
             (route) => false,
           );
         } else if (index == 1) {
+          // Listings - Already on this page, do nothing
+          return;
+        } else if (index == 2) {
+          // Requests
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RestaurantRequestsPage()),
           );
-        } else if (index == 2) {
+        } else if (index == 3) {
+          // Chat
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ChatListPage()),
           );
-        } else if (index == 3) {
+        } else if (index == 4) {
+          // Profile
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RestaurantProfilePage()),

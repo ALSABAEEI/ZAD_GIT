@@ -112,6 +112,11 @@ class RequestBloc extends Bloc<RequestEvent, RequestState> {
       await createRequestUseCase(event.request);
       print('REQUEST BLOC: Request created successfully');
       emit(RequestCreated(event.request));
+      // After creation, emit a RequestsLoaded for the charity to refresh their list if listening
+      try {
+        final requests = await getRequestsUseCase(event.request.charityId);
+        emit(RequestsLoaded(requests));
+      } catch (_) {}
     } catch (e) {
       print('REQUEST BLOC: Error creating request: $e');
       emit(RequestError(e.toString()));

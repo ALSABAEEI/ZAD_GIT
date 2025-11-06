@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../food/domain/entities/food_item_entity.dart';
 import '../../../food/domain/entities/reservation_entity.dart';
 import '../../../food/presentation/bloc/reservation_bloc.dart';
+import '../../../notifications/domain/services/notification_service.dart';
 import 'charity_reserved_page.dart';
 
 class FoodItemDetailsPage extends StatelessWidget {
@@ -17,7 +18,6 @@ class FoodItemDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: Container(
@@ -372,6 +372,18 @@ class FoodItemDetailsPage extends StatelessWidget {
 
                         // Info Bar
 
+                        // Food Type (if available)
+                        if (foodItem.foodType != null &&
+                            foodItem.foodType!.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          _buildDetailItem(
+                            Icons.category,
+                            'Food Type',
+                            foodItem.foodType!,
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
                         // Description
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -668,6 +680,20 @@ class FoodItemDetailsPage extends StatelessWidget {
 
     // Create reservation using BLoC
     context.read<ReservationBloc>().add(CreateReservation(reservation));
+
+    // Create notification for restaurant
+    try {
+      final notificationService = context.read<NotificationService>();
+      await notificationService.createReservationNotification(
+        restaurantId: foodItem.restaurantId,
+        foodItemName: foodItem.name,
+        organizationName: charityName,
+        foodItemId: foodItem.id,
+        reservationId: reservation.id,
+      );
+    } catch (e) {
+      print('Failed to create reservation notification: $e');
+    }
 
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(

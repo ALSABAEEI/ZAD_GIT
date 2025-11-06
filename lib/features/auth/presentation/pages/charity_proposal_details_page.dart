@@ -6,6 +6,7 @@ import 'dart:ui';
 import '../../../food/domain/entities/charity_proposal_entity.dart';
 import '../../../food/domain/entities/request_entity.dart';
 import '../../../food/presentation/bloc/request_bloc.dart';
+import '../../../notifications/domain/services/notification_service.dart';
 
 class CharityProposalDetailsPage extends StatelessWidget {
   final CharityProposalEntity proposal;
@@ -722,6 +723,22 @@ class CharityProposalDetailsPage extends StatelessWidget {
       );
 
       context.read<RequestBloc>().add(CreateRequest(request));
+
+      // Fire-and-forget: notify organization (charity) of new request
+      Future.microtask(() async {
+        try {
+          final notificationService = context.read<NotificationService>();
+          await notificationService.createOrgRequestNotification(
+            charityId: proposal.charityId,
+            restaurantName: request.restaurantName,
+            proposalTitle: proposal.title,
+            status: 'pending',
+            requestId: request.id,
+          );
+        } catch (e) {
+          print('NOTIFY ORG NEW REQUEST failed: $e');
+        }
+      });
 
       // Return true to indicate successful application
       Navigator.pop(context, true);

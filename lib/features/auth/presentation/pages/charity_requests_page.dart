@@ -10,6 +10,7 @@ import '../../../chat/domain/entities/chat_room_entity.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
 import '../../../chat/presentation/pages/chat_page.dart';
 import '../../../chat/presentation/bloc/chat_bloc.dart';
+import '../../../notifications/domain/services/notification_service.dart';
 import 'charity_profile_page.dart';
 import 'charity_home_page.dart';
 import 'charity_reserved_page.dart';
@@ -35,8 +36,7 @@ class _CharityRequestsPageState extends State<CharityRequestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final screenHeight = MediaQuery.of(context).size.height;
+    // UI dimensions available if needed
 
     return Scaffold(
       body: Container(
@@ -62,10 +62,11 @@ class _CharityRequestsPageState extends State<CharityRequestsPage> {
                     Expanded(
                       child: Text(
                         'Restaurant Requests',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -481,18 +482,31 @@ class _CharityRequestsPageState extends State<CharityRequestsPage> {
       // Update the request status
       context.read<RequestBloc>().add(UpdateRequestStatus(requestId, status));
 
-      // If the request is accepted, we also need to update the proposal status
-      if (status == 'accepted') {
-        // Get the request to find the proposal ID
-        final requests = await FirebaseFirestore.instance
-            .collection('requests')
-            .doc(requestId)
-            .get();
+      // Get the request data for notifications
+      final requests = await FirebaseFirestore.instance
+          .collection('requests')
+          .doc(requestId)
+          .get();
 
-        if (requests.exists) {
-          final requestData = requests.data()!;
-          final proposalId = requestData['proposalId'] as String;
+      if (requests.exists) {
+        final requestData = requests.data()!;
+        final restaurantId = requestData['restaurantId'] as String;
+        final proposalTitle = requestData['proposalTitle'] as String;
+        final charityName = requestData['charityName'] as String;
+        final proposalId = requestData['proposalId'] as String;
 
+        // Create notification for restaurant (status update)
+        final notificationService = context.read<NotificationService>();
+        await notificationService.createProposalStatusNotification(
+          restaurantId: restaurantId,
+          proposalTitle: proposalTitle,
+          organizationName: charityName,
+          status: status,
+          proposalId: proposalId,
+        );
+
+        // If the request is accepted, we also need to update the proposal status
+        if (status == 'accepted') {
           // Update the proposal status to 'accepted'
           await FirebaseFirestore.instance
               .collection('charity_proposals')

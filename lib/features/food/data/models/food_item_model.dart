@@ -14,6 +14,7 @@ class FoodItemModel extends FoodItemEntity {
     required super.createdAt,
     required super.isAvailable,
     required super.expirationHours,
+    super.foodType,
   });
 
   factory FoodItemModel.fromJson(Map<String, dynamic> json, String id) {
@@ -29,6 +30,7 @@ class FoodItemModel extends FoodItemEntity {
       createdAt: (json['createdAt'] as Timestamp).toDate(),
       isAvailable: json['isAvailable'] ?? true,
       expirationHours: json['expirationHours'] ?? 24, // Default to 24 hours
+      foodType: json['foodType'],
     );
   }
 
@@ -44,6 +46,7 @@ class FoodItemModel extends FoodItemEntity {
       'createdAt': Timestamp.fromDate(createdAt),
       'isAvailable': isAvailable,
       'expirationHours': expirationHours,
+      'foodType': foodType,
     };
   }
 }
