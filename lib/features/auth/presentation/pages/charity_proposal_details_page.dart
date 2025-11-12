@@ -7,6 +7,7 @@ import '../../../food/domain/entities/charity_proposal_entity.dart';
 import '../../../food/domain/entities/request_entity.dart';
 import '../../../food/presentation/bloc/request_bloc.dart';
 import '../../../notifications/domain/services/notification_service.dart';
+import '../../../food/domain/usecases/has_restaurant_applied_usecase.dart';
 
 class CharityProposalDetailsPage extends StatelessWidget {
   final CharityProposalEntity proposal;
@@ -114,7 +115,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                 Icon(
                                   Icons.business_rounded,
                                   color: Colors.white,
-                                  size: 16,
+                                  size: 14,
                                 ),
                                 const SizedBox(width: 6),
                                 FutureBuilder<DocumentSnapshot>(
@@ -129,7 +130,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                         'Loading...',
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: 14,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       );
@@ -148,7 +149,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                           : 'Unknown Organization',
                                       style: const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     );
@@ -216,7 +217,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                             const Text(
                               'Program Name',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF1E293B),
                                 letterSpacing: -0.5,
@@ -230,7 +231,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                         // Program Name Card
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
@@ -240,7 +241,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                 const Color(0xFF7C3AED).withOpacity(0.05),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: const Color(0xFF8B5CF6).withOpacity(0.1),
                               width: 1,
@@ -249,7 +250,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                           child: Text(
                             proposal.title,
                             style: const TextStyle(
-                              fontSize: 24,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E293B),
                               letterSpacing: -0.5,
@@ -307,7 +308,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                             const Text(
                               'About This Proposal',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF1E293B),
                                 letterSpacing: -0.5,
@@ -322,7 +323,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                         Text(
                           proposal.description,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: Color(0xFF475569),
                             height: 1.6,
                             letterSpacing: -0.2,
@@ -379,7 +380,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                             const Text(
                               'Proposal Details',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF1E293B),
                                 letterSpacing: -0.5,
@@ -388,7 +389,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                           ],
                         ),
 
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
 
                         // Details Cards
                         Row(
@@ -396,7 +397,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                             // Quantity Card
                             Expanded(
                               child: Container(
-                                padding: const EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.topLeft,
@@ -406,7 +407,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                       const Color(0xFF3B82F6).withOpacity(0.05),
                                     ],
                                   ),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                     color: const Color(
                                       0xFF1E40AF,
@@ -417,24 +418,24 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.all(12),
+                                      padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
                                         color: const Color(
                                           0xFF1E40AF,
                                         ).withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                       child: const Icon(
                                         Icons.inventory_2_rounded,
                                         color: Color(0xFF1E40AF),
-                                        size: 24,
+                                        size: 20,
                                       ),
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 10),
                                     Text(
                                       '${proposal.requestedAmount}',
                                       style: const TextStyle(
-                                        fontSize: 24,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                         color: Color(0xFF1E40AF),
                                       ),
@@ -443,7 +444,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                     Text(
                                       'Items Needed',
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11,
                                         color: const Color(
                                           0xFF1E40AF,
                                         ).withOpacity(0.7),
@@ -460,7 +461,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                             // Date Card
                             Expanded(
                               child: Container(
-                                padding: const EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.topLeft,
@@ -470,7 +471,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                       const Color(0xFFD97706).withOpacity(0.05),
                                     ],
                                   ),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                     color: const Color(
                                       0xFFF59E0B,
@@ -481,24 +482,24 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.all(12),
+                                      padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
                                         color: const Color(
                                           0xFFF59E0B,
                                         ).withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                       child: const Icon(
                                         Icons.calendar_today_rounded,
                                         color: Color(0xFFF59E0B),
-                                        size: 24,
+                                        size: 20,
                                       ),
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 10),
                                     Text(
                                       '${proposal.targetedDate.day}/${proposal.targetedDate.month}',
                                       style: const TextStyle(
-                                        fontSize: 24,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                         color: Color(0xFFF59E0B),
                                       ),
@@ -507,7 +508,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
                                     Text(
                                       'Target Date',
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11,
                                         color: const Color(
                                           0xFFF59E0B,
                                         ).withOpacity(0.7),
@@ -556,7 +557,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(24),
@@ -571,14 +572,14 @@ class CharityProposalDetailsPage extends StatelessWidget {
               child: const Icon(
                 Icons.favorite_rounded,
                 color: Colors.white,
-                size: 48,
+                size: 40,
               ),
             ),
             const SizedBox(height: 16),
             const Text(
               'Charity Proposal',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
                 letterSpacing: -0.5,
@@ -594,7 +595,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
     if (isApplied) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -613,24 +614,13 @@ class CharityProposalDetailsPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.check_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
+            const Icon(Icons.check_rounded, color: Colors.white, size: 18),
             const SizedBox(width: 12),
             const Text(
               'Applied Successfully',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.3,
               ),
@@ -644,7 +634,7 @@ class CharityProposalDetailsPage extends StatelessWidget {
       onTap: () => _applyToProposal(context),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 18),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -667,24 +657,13 @@ class CharityProposalDetailsPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.favorite_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
+            const Icon(Icons.favorite_rounded, color: Colors.white, size: 18),
             const SizedBox(width: 12),
             const Text(
               'Apply to Proposal',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.3,
               ),
@@ -700,6 +679,21 @@ class CharityProposalDetailsPage extends StatelessWidget {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('User not authenticated');
 
+      // Prevent duplicate requests for the same proposal by this restaurant
+      final hasApplied = await context.read<HasRestaurantAppliedUseCase>().call(
+        proposal.id,
+        user.uid,
+      );
+      if (hasApplied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You have already applied to this proposal'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
       // Get restaurant name from user data
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
@@ -708,15 +702,28 @@ class CharityProposalDetailsPage extends StatelessWidget {
       final userData = userDoc.data();
       final restaurantName = userData?['name'] ?? 'Unknown Restaurant';
 
-      // Create request
+      // Get charity organization name from charity profile (fallback to proposal)
+      final charityDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(proposal.charityId)
+          .get();
+      final charityData = charityDoc.data();
+      final charityName =
+          charityData?['organizationName'] ?? proposal.organizationName;
+
+      // Create request with generated ID
+      final requestId = FirebaseFirestore.instance
+          .collection('requests')
+          .doc()
+          .id;
       final request = RequestEntity(
-        id: '',
+        id: requestId,
         proposalId: proposal.id,
         proposalTitle: proposal.title,
         restaurantId: user.uid,
         restaurantName: restaurantName,
         charityId: proposal.charityId,
-        charityName: proposal.organizationName,
+        charityName: charityName,
         status: 'pending',
         requestedAt: DateTime.now(),
         message: 'I would like to help with this proposal.',
@@ -728,11 +735,10 @@ class CharityProposalDetailsPage extends StatelessWidget {
       Future.microtask(() async {
         try {
           final notificationService = context.read<NotificationService>();
-          await notificationService.createOrgRequestNotification(
-            charityId: proposal.charityId,
+          await notificationService.notifyOrgOnRestaurantApplied(
+            organizationUserId: proposal.charityId,
             restaurantName: request.restaurantName,
             proposalTitle: proposal.title,
-            status: 'pending',
             requestId: request.id,
           );
         } catch (e) {

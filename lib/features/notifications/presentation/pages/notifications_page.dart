@@ -205,14 +205,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: _getNotificationColor(
-                      notification.type,
+                    color: _getNotificationColorFor(
+                      notification,
                     ).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    _getNotificationIcon(notification.type),
-                    color: _getNotificationColor(notification.type),
+                    _getNotificationIconFor(notification),
+                    color: _getNotificationColorFor(notification),
                     size: 24,
                   ),
                 ),
@@ -276,27 +276,31 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  IconData _getNotificationIcon(String type) {
-    switch (type) {
-      case 'proposal_status':
-        return Icons.assignment_turned_in_rounded;
-      case 'reservation':
+  IconData _getNotificationIconFor(NotificationEntity n) {
+    switch (n.type) {
+      case 'org_application':
+        return Icons.person_add_rounded;
+      case 'food_reserved':
         return Icons.restaurant_rounded;
-      case 'reservation_cancelled':
-        return Icons.cancel_rounded;
+      case 'request_decision':
+        final status = (n.metadata?['status'] ?? '').toString().toLowerCase();
+        return status == 'accepted'
+            ? Icons.check_circle_rounded
+            : Icons.cancel_rounded;
       default:
         return Icons.notifications_rounded;
     }
   }
 
-  Color _getNotificationColor(String type) {
-    switch (type) {
-      case 'proposal_status':
-        return Colors.green;
-      case 'reservation':
+  Color _getNotificationColorFor(NotificationEntity n) {
+    switch (n.type) {
+      case 'org_application':
+        return Colors.indigo;
+      case 'food_reserved':
         return Colors.blue;
-      case 'reservation_cancelled':
-        return Colors.orange;
+      case 'request_decision':
+        final status = (n.metadata?['status'] ?? '').toString().toLowerCase();
+        return status == 'accepted' ? Colors.green : Colors.redAccent;
       default:
         return Colors.grey;
     }

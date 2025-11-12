@@ -325,22 +325,74 @@ class _CharityHomePageState extends State<CharityHomePage> {
 
                 const SizedBox(height: 24),
 
-                // Food Listings Header
+                // Food Listings Header with availability badge
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Available Food',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1E293B),
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ],
+                  child: BlocBuilder<FoodBloc, FoodState>(
+                    builder: (context, state) {
+                      int count = 0;
+                      if (state is FoodLoaded) {
+                        final available = state.foodItems
+                            .where((f) => f.isAvailable)
+                            .toList();
+                        final filtered = _selectedCategory == null
+                            ? available
+                            : available
+                                  .where(
+                                    (it) =>
+                                        (it.foodType ?? '').toLowerCase() ==
+                                        _normalizeCategoryLabel(
+                                          _selectedCategory!,
+                                        ).toLowerCase(),
+                                  )
+                                  .toList();
+                        count = filtered.length;
+                      }
+
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Available Food',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E293B),
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  const Color(0xFF1E40AF).withOpacity(0.1),
+                                  const Color(0xFF3B82F6).withOpacity(0.1),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFF1E40AF).withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              '$count Available',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1E40AF),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
 
@@ -629,42 +681,7 @@ class _CharityHomePageState extends State<CharityHomePage> {
                             child: _buildSimpleImageWidget(foodItem.imageUrl),
                           )
                         : _buildFoodImagePlaceholder(),
-                    // Price badge
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: foodItem.price == 0
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFF59E0B),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  (foodItem.price == 0
-                                          ? const Color(0xFF10B981)
-                                          : const Color(0xFFF59E0B))
-                                      .withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          foodItem.price == 0 ? 'FREE' : '\$${foodItem.price}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Price badge removed (will be shown near quantity)
                   ],
                 ),
               ),
@@ -680,19 +697,19 @@ class _CharityHomePageState extends State<CharityHomePage> {
                       foodItem.name,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 15,
                         color: Color(0xFF1E293B),
                         letterSpacing: -0.3,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         Icon(
                           Icons.inventory_2_rounded,
-                          size: 14,
+                          size: 12,
                           color: const Color(0xFF64748B),
                         ),
                         const SizedBox(width: 4),
@@ -702,6 +719,37 @@ class _CharityHomePageState extends State<CharityHomePage> {
                             color: Color(0xFF64748B),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: foodItem.price == 0
+                                ? const Color(0xFF10B981).withOpacity(0.15)
+                                : const Color(0xFFF59E0B).withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: foodItem.price == 0
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFFF59E0B),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            foodItem.price == 0
+                                ? 'FREE'
+                                : '\$${foodItem.price}',
+                            style: TextStyle(
+                              color: foodItem.price == 0
+                                  ? const Color(0xFF059669)
+                                  : const Color(0xFFB45309),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                            ),
                           ),
                         ),
                       ],

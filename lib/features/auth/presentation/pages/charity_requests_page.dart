@@ -490,20 +490,24 @@ class _CharityRequestsPageState extends State<CharityRequestsPage> {
 
       if (requests.exists) {
         final requestData = requests.data()!;
+        final proposalId = requestData['proposalId'] as String;
         final restaurantId = requestData['restaurantId'] as String;
         final proposalTitle = requestData['proposalTitle'] as String;
         final charityName = requestData['charityName'] as String;
-        final proposalId = requestData['proposalId'] as String;
 
-        // Create notification for restaurant (status update)
-        final notificationService = context.read<NotificationService>();
-        await notificationService.createProposalStatusNotification(
-          restaurantId: restaurantId,
-          proposalTitle: proposalTitle,
-          organizationName: charityName,
-          status: status,
-          proposalId: proposalId,
-        );
+        // Notify restaurant about decision (accepted/rejected)
+        try {
+          final notificationService = context.read<NotificationService>();
+          await notificationService.notifyRestaurantOnRequestDecision(
+            restaurantUserId: restaurantId,
+            proposalTitle: proposalTitle,
+            organizationName: charityName,
+            status: status,
+            requestId: requestId,
+          );
+        } catch (e) {
+          print('Failed to create request decision notification: $e');
+        }
 
         // If the request is accepted, we also need to update the proposal status
         if (status == 'accepted') {

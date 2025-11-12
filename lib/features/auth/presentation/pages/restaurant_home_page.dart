@@ -401,7 +401,18 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                             ),
                           ),
                           child: Text(
-                            '${context.watch<CharityProposalBloc>().state is CharityProposalLoaded ? (context.watch<CharityProposalBloc>().state as CharityProposalLoaded).proposals.length : 0} Active',
+                            (() {
+                              final state = context
+                                  .watch<CharityProposalBloc>()
+                                  .state;
+                              if (state is CharityProposalLoaded) {
+                                final active = state.proposals
+                                    .where((p) => p.status != 'accepted')
+                                    .length;
+                                return '$active Active';
+                              }
+                              return '0 Active';
+                            })(),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -585,15 +596,15 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
 
   Widget _buildProposalCard(CharityProposalEntity proposal, bool isApplied) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1E40AF).withOpacity(0.06),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
             spreadRadius: 0,
           ),
           BoxShadow(
@@ -627,17 +638,17 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
               }
             },
             child: Container(
-              height: 160,
+              height: 140,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
+                  top: Radius.circular(18),
                 ),
                 color: const Color(0xFFF8FAFC),
               ),
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
+                  top: Radius.circular(18),
                 ),
                 child:
                     proposal.organizationImageUrl != null &&
@@ -666,44 +677,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                               ),
                             ),
                           ),
-                          // Floating action indicator
-                          Positioned(
-                            top: 16,
-                            right: 16,
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.95),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.15),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.visibility_rounded,
-                                    color: const Color(0xFF1E40AF),
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'View',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF1E40AF),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          // Removed floating "View" indicator per request
                         ],
                       )
                     : _buildStunningPlaceholder(),
@@ -713,7 +687,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
 
           // Content Section with Beautiful Typography
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -721,7 +695,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                 Text(
                   proposal.title,
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1E293B),
                     letterSpacing: -0.5,
@@ -731,7 +705,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                   overflow: TextOverflow.ellipsis,
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // Beautiful Info Cards Row
                 Row(
@@ -740,8 +714,8 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                          horizontal: 12,
+                          vertical: 8,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -752,7 +726,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                               const Color(0xFF3B82F6).withOpacity(0.08),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: const Color(0xFF1E40AF).withOpacity(0.15),
                             width: 1,
@@ -761,23 +735,16 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E40AF).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                Icons.inventory_2_rounded,
-                                size: 16,
-                                color: const Color(0xFF1E40AF),
-                              ),
+                            Icon(
+                              Icons.inventory_2_rounded,
+                              size: 14,
+                              color: const Color(0xFF1E40AF),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               '${proposal.requestedAmount} items',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: const Color(0xFF1E40AF),
                               ),
@@ -790,8 +757,8 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                     // Date Card
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
+                        horizontal: 12,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -802,7 +769,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                             const Color(0xFFD97706).withOpacity(0.08),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: const Color(0xFFF59E0B).withOpacity(0.2),
                           width: 1,
@@ -811,23 +778,16 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF59E0B).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.calendar_today_rounded,
-                              size: 14,
-                              color: const Color(0xFFF59E0B),
-                            ),
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 13,
+                            color: const Color(0xFFF59E0B),
                           ),
                           const SizedBox(width: 6),
                           Text(
                             '${proposal.targetedDate.day}/${proposal.targetedDate.month}',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: const Color(0xFFF59E0B),
                             ),
@@ -838,7 +798,7 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
 
                 // Full-width Action Button
                 SizedBox(
@@ -926,14 +886,11 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
         bg1 = Colors.red.shade500;
         bg2 = Colors.red.shade700;
         label = 'Rejected';
-      } else if (status == 'accepted') {
-        bg1 = Colors.green.shade400;
-        bg2 = Colors.teal.shade500;
-        label = 'Applied';
       } else {
-        bg1 = Colors.grey.shade400;
-        bg2 = Colors.grey.shade600;
-        label = 'Applied';
+        // Treat both 'applied' (pending) and 'accepted' as success-style visual
+        bg1 = Colors.green.shade400;
+        bg2 = Colors.teal.shade600;
+        label = 'Applied Successfully';
       }
 
       return Container(
@@ -943,12 +900,12 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
             end: Alignment.bottomRight,
             colors: [bg1, bg2],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
               color: bg1.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -959,13 +916,31 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
             foregroundColor: Colors.white,
             shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
           ),
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                (status == 'rejected')
+                    ? Icons.close_rounded
+                    : Icons.check_rounded,
+                size: 18,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: -0.2,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -978,12 +953,12 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
             end: Alignment.bottomRight,
             colors: [const Color(0xFF1E40AF), const Color(0xFF3B82F6)],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF1E40AF).withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -994,13 +969,13 @@ class _RestaurantHomePageState extends State<RestaurantHomePage> {
             foregroundColor: Colors.white,
             shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
           ),
           child: const Text(
             'Apply',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
           ),
         ),
       );

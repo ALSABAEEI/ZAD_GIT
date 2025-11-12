@@ -122,7 +122,7 @@ class RegistrationPage extends StatelessWidget {
                             child: const Icon(
                               Icons.person_add_alt_1,
                               color: Colors.deepPurple,
-                              size: 32,
+                              size: 28,
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -145,12 +145,23 @@ class RegistrationPage extends StatelessWidget {
                           color: Colors.grey[600],
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
                       TextField(
+                        style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
                           labelText: 'Email Address',
                           hintText: 'Enter Email',
-                          prefixIcon: const Icon(Icons.email_outlined),
+                          labelStyle: const TextStyle(fontSize: 13),
+                          hintStyle: const TextStyle(fontSize: 13),
+                          prefixIcon: const Icon(
+                            Icons.email_outlined,
+                            size: 18,
+                          ),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -159,13 +170,21 @@ class RegistrationPage extends StatelessWidget {
                         ),
                         onChanged: (v) => bloc.add(EmailChanged(v)),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 14),
                       TextField(
                         obscureText: true,
+                        style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
                           labelText: 'Password',
                           hintText: 'Password',
-                          prefixIcon: const Icon(Icons.lock_outline),
+                          labelStyle: const TextStyle(fontSize: 13),
+                          hintStyle: const TextStyle(fontSize: 13),
+                          prefixIcon: const Icon(Icons.lock_outline, size: 18),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -175,7 +194,7 @@ class RegistrationPage extends StatelessWidget {
                         ),
                         onChanged: (v) => bloc.add(PasswordChanged(v)),
                       ),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 16),
                       Text(
                         'Role',
                         style: theme.textTheme.titleMedium?.copyWith(
@@ -204,16 +223,22 @@ class RegistrationPage extends StatelessWidget {
                                     color: Colors.deepPurple.shade200,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
+                                    vertical: 10,
                                   ),
                                 ),
                                 onPressed: () =>
                                     bloc.add(RoleChanged('Organization')),
-                                icon: const Icon(Icons.volunteer_activism),
-                                label: const Text('Organization'),
+                                icon: const Icon(
+                                  Icons.volunteer_activism,
+                                  size: 18,
+                                ),
+                                label: const Text(
+                                  'Organization',
+                                  style: TextStyle(fontSize: 13),
+                                ),
                               ),
                             ),
                           ),
@@ -234,32 +259,46 @@ class RegistrationPage extends StatelessWidget {
                                     color: Colors.deepPurple.shade200,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
+                                    vertical: 10,
                                   ),
                                 ),
                                 onPressed: () =>
                                     bloc.add(RoleChanged('Restaurant')),
-                                icon: const Icon(Icons.restaurant_menu),
-                                label: const Text('Restaurant'),
+                                icon: const Icon(
+                                  Icons.restaurant_menu,
+                                  size: 18,
+                                ),
+                                label: const Text(
+                                  'Restaurant',
+                                  style: TextStyle(fontSize: 13),
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
                             child: TextField(
+                              style: const TextStyle(fontSize: 14),
                               decoration: InputDecoration(
-                                labelText:
-                                    'Commercial Registration National Number',
-                                hintText: 'Enter CRN Number',
+                                labelText: 'Commercial number',
+                                hintText: 'Enter commercial number',
+                                labelStyle: const TextStyle(fontSize: 13),
+                                hintStyle: const TextStyle(fontSize: 13),
                                 prefixIcon: const Icon(
                                   Icons.confirmation_number_outlined,
+                                  size: 18,
+                                ),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 12,
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -278,8 +317,8 @@ class RegistrationPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 18,
+                                horizontal: 16,
+                                vertical: 12,
                               ),
                               elevation: 3,
                             ),
@@ -288,8 +327,8 @@ class RegistrationPage extends StatelessWidget {
                                 : () => bloc.add(CheckEligibility()),
                             child: state is RegistrationLoading
                                 ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
+                                    width: 16,
+                                    height: 16,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: Colors.white,
@@ -300,12 +339,13 @@ class RegistrationPage extends StatelessWidget {
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
+                                      fontSize: 13,
                                     ),
                                   ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 14),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 350),
                         child: state is RegistrationEligibilityChecked
@@ -358,7 +398,7 @@ class RegistrationPage extends StatelessWidget {
                               )
                             : const SizedBox.shrink(),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -384,7 +424,7 @@ class RegistrationPage extends StatelessWidget {
                               ),
                             ),
                             padding: MaterialStateProperty.all(
-                              const EdgeInsets.symmetric(vertical: 20),
+                              const EdgeInsets.symmetric(vertical: 16),
                             ),
                             elevation: MaterialStateProperty.all(4),
                           ),
@@ -401,7 +441,7 @@ class RegistrationPage extends StatelessWidget {
                               : const Text(
                                   'Register',
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

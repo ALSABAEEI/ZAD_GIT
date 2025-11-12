@@ -8,7 +8,6 @@ import '../../../food/presentation/bloc/reservation_bloc.dart';
 import '../../../chat/domain/entities/chat_room_entity.dart';
 import '../../../chat/presentation/pages/chat_page.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
-import '../../../notifications/domain/services/notification_service.dart';
 import 'charity_profile_page.dart';
 import 'charity_home_page.dart';
 import 'food_item_details_page.dart';
@@ -431,19 +430,9 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          Colors.deepPurple.shade600,
-                          Colors.deepPurple.shade700,
-                        ],
+                        colors: const [Color(0xFF10B981), Color(0xFF059669)],
                       ),
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.deepPurple.shade600.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: Material(
                       color: Colors.transparent,
@@ -469,17 +458,10 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(
-                                Icons.chat_rounded,
-                                size: 14,
-                                color: Colors.white,
-                              ),
+                            const Icon(
+                              Icons.chat_rounded,
+                              size: 16,
+                              color: Colors.white,
                             ),
                             const SizedBox(width: 4),
                             const Text(
@@ -507,13 +489,6 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
                         colors: [Colors.red.shade500, Colors.red.shade600],
                       ),
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red.shade500.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: Material(
                       color: Colors.transparent,
@@ -527,17 +502,10 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(
-                                Icons.close_rounded,
-                                size: 14,
-                                color: Colors.white,
-                              ),
+                            const Icon(
+                              Icons.close_rounded,
+                              size: 16,
+                              color: Colors.white,
                             ),
                             const SizedBox(width: 4),
                             const Text(
@@ -815,23 +783,7 @@ class _CharityReservedPageState extends State<CharityReservedPage> {
         CancelReservation(reservation.id, user.uid),
       );
 
-      // Fire-and-forget: notify restaurant after cancellation is triggered
-      // This avoids any failure here blocking the cancel UX
-      Future.microtask(() async {
-        try {
-          final notificationService = context.read<NotificationService>();
-          await notificationService.createReservationCancelledNotification(
-            restaurantId: reservation.restaurantId,
-            foodItemName: reservation.foodItemName,
-            organizationName: reservation.charityName,
-            foodItemId: reservation.foodItemId,
-            reservationId: reservation.id,
-          );
-        } catch (e) {
-          // Log only; do not interrupt user flow
-          print('Failed to create cancellation notification: $e');
-        }
-      });
+      // No cancellation notification per the new simplified rules
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(

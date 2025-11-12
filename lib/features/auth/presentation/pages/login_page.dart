@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/login_bloc.dart';
-import 'restaurant_profile_page.dart';
-import 'charity_profile_page.dart';
 import 'restaurant_home_page.dart';
 import 'charity_home_page.dart';
 import 'registration_page.dart';
@@ -106,7 +104,7 @@ class LoginPage extends StatelessWidget {
                               child: const Icon(
                                 Icons.login,
                                 color: Colors.deepPurple,
-                                size: 32,
+                                size: 28,
                               ),
                             ),
                             const SizedBox(width: 14),
@@ -126,12 +124,23 @@ class LoginPage extends StatelessWidget {
                             color: Colors.grey[600],
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
                         TextField(
+                          style: const TextStyle(fontSize: 14),
                           decoration: InputDecoration(
                             labelText: 'Email Address',
                             hintText: 'Enter Email',
-                            prefixIcon: const Icon(Icons.email_outlined),
+                            labelStyle: const TextStyle(fontSize: 13),
+                            hintStyle: const TextStyle(fontSize: 13),
+                            prefixIcon: const Icon(
+                              Icons.email_outlined,
+                              size: 18,
+                            ),
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 12,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -140,13 +149,24 @@ class LoginPage extends StatelessWidget {
                           ),
                           onChanged: (v) => bloc.add(LoginEmailChanged(v)),
                         ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 14),
                         TextField(
                           obscureText: true,
+                          style: const TextStyle(fontSize: 14),
                           decoration: InputDecoration(
                             labelText: 'Password',
                             hintText: 'Password',
-                            prefixIcon: const Icon(Icons.lock_outline),
+                            labelStyle: const TextStyle(fontSize: 13),
+                            hintStyle: const TextStyle(fontSize: 13),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              size: 18,
+                            ),
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 12,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -156,7 +176,7 @@ class LoginPage extends StatelessWidget {
                           ),
                           onChanged: (v) => bloc.add(LoginPasswordChanged(v)),
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -184,7 +204,7 @@ class LoginPage extends StatelessWidget {
                                 ),
                               ),
                               padding: MaterialStateProperty.all(
-                                const EdgeInsets.symmetric(vertical: 20),
+                                const EdgeInsets.symmetric(vertical: 16),
                               ),
                               elevation: MaterialStateProperty.all(4),
                             ),
@@ -198,7 +218,7 @@ class LoginPage extends StatelessWidget {
                                 : const Text(
                                     'Login',
                                     style: TextStyle(
-                                      fontSize: 22,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
