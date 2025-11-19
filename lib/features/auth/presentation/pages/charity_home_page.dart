@@ -257,12 +257,12 @@ class _CharityHomePageState extends State<CharityHomePage> {
                     children: [
                       Expanded(
                         child: _buildCategoryIcon(
-                          icon: Icons.rice_bowl,
-                          label: 'rice dish',
-                          isSelected: _selectedCategory == 'rice dish',
+                          icon: Icons.fastfood,
+                          label: 'Burger',
+                          isSelected: _selectedCategory == 'Burger',
                           onTap: () {
                             setState(() {
-                              _selectedCategory = 'rice dish';
+                              _selectedCategory = 'Burger';
                             });
                           },
                         ),
@@ -270,12 +270,38 @@ class _CharityHomePageState extends State<CharityHomePage> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildCategoryIcon(
-                          icon: Icons.lunch_dining,
-                          label: 'Burgers',
-                          isSelected: _selectedCategory == 'Burgers',
+                          icon: Icons.restaurant,
+                          label: 'Sandwich',
+                          isSelected: _selectedCategory == 'Sandwich',
                           onTap: () {
                             setState(() {
-                              _selectedCategory = 'Burgers';
+                              _selectedCategory = 'Sandwich';
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildCategoryIcon(
+                          icon: Icons.donut_small,
+                          label: 'Donut',
+                          isSelected: _selectedCategory == 'Donut',
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = 'Donut';
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildCategoryIcon(
+                          icon: Icons.local_pizza,
+                          label: 'Pizza',
+                          isSelected: _selectedCategory == 'Pizza',
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = 'Pizza';
                             });
                           },
                         ),
@@ -284,37 +310,11 @@ class _CharityHomePageState extends State<CharityHomePage> {
                       Expanded(
                         child: _buildCategoryIcon(
                           icon: Icons.outdoor_grill,
-                          label: 'Mashawi',
-                          isSelected: _selectedCategory == 'Mashawi',
+                          label: 'Chicken',
+                          isSelected: _selectedCategory == 'Chicken',
                           onTap: () {
                             setState(() {
-                              _selectedCategory = 'Mashawi';
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildCategoryIcon(
-                          icon: Icons.cake,
-                          label: 'Dessert',
-                          isSelected: _selectedCategory == 'Dessert',
-                          onTap: () {
-                            setState(() {
-                              _selectedCategory = 'Dessert';
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildCategoryIcon(
-                          icon: Icons.local_drink,
-                          label: 'Beverages',
-                          isSelected: _selectedCategory == 'Beverages',
-                          onTap: () {
-                            setState(() {
-                              _selectedCategory = 'Beverages';
+                              _selectedCategory = 'Chicken';
                             });
                           },
                         ),
@@ -562,11 +562,27 @@ class _CharityHomePageState extends State<CharityHomePage> {
   String _normalizeCategoryLabel(String label) {
     final value = label.trim().toLowerCase();
     switch (value) {
-      case 'rice dish':
-      case 'rice dishes':
-      case 'meat & rice':
-      case 'meat and rice':
-        return 'rice dish';
+      case 'burger':
+      case 'burgers':
+        return 'burger';
+      case 'sandwich':
+      case 'sandwiches':
+      case 'club sandwich':
+      case 'club sandwiches':
+        return 'sandwich';
+      case 'donut':
+      case 'donuts':
+      case 'doughnut':
+      case 'doughnuts':
+        return 'donut';
+      case 'pizza':
+      case 'pizzas':
+        return 'pizza';
+      case 'chicken':
+      case 'roasted chicken':
+      case 'roast chicken':
+      case 'roasted chickens':
+        return 'chicken';
       default:
         return value;
     }

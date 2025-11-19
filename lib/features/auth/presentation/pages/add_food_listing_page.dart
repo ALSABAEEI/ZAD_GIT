@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:ui';
 import '../../../food/presentation/bloc/food_bloc.dart';
 import '../../../food/data/models/food_item_model.dart';
+import '../../../food/data/services/food_type_detector.dart';
 
 class AddFoodListingPage extends StatefulWidget {
   const AddFoodListingPage({Key? key}) : super(key: key);
@@ -31,7 +32,10 @@ class _AddFoodListingPageState extends State<AddFoodListingPage> {
   Uint8List? _selectedImageBytes;
   bool _isLoading = false;
   bool _isFree = false;
-  bool _imageSelected = false; // reserved for future UI hints
+  bool _isDetectingFoodType = false;
+  String? _detectionStatus;
+
+  final FoodTypeDetector _foodTypeDetector = FoodTypeDetector();
 
   @override
   Widget build(BuildContext context) {
@@ -419,11 +423,11 @@ class _AddFoodListingPageState extends State<AddFoodListingPage> {
                                 value: _selectedFoodType,
                                 items:
                                     const [
-                                          'rice dish',
-                                          'Burgers',
-                                          'Mashawi',
-                                          'Dessert',
-                                          'Beverages',
+                                          'Burger',
+                                          'Sandwich',
+                                          'Donut',
+                                          'Pizza',
+                                          'Chicken',
                                         ]
                                         .map(
                                           (type) => DropdownMenuItem(
@@ -492,6 +496,38 @@ class _AddFoodListingPageState extends State<AddFoodListingPage> {
                                   ).withOpacity(0.02),
                                 ),
                               ),
+                              const SizedBox(height: 8),
+                              if (_isDetectingFoodType)
+                                Row(
+                                  children: const [
+                                    SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Color(0xFF1E40AF),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Detecting food type from image...',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF1E40AF),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              else if (_detectionStatus != null)
+                                Text(
+                                  _detectionStatus!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _selectedFoodType != null
+                                        ? const Color(0xFF16A34A)
+                                        : const Color(0xFFDC2626),
+                                  ),
+                                ),
                             ],
                           ),
 
@@ -909,17 +945,19 @@ class _AddFoodListingPageState extends State<AddFoodListingPage> {
       );
 
       if (image != null) {
+        final bytes = await image.readAsBytes();
         if (kIsWeb) {
-          final bytes = await image.readAsBytes();
           setState(() {
             _selectedImageBytes = bytes;
-            _imageSelected = true;
           });
         } else {
+          final file = File(image.path);
           setState(() {
-            _selectedImage = File(image.path);
+            _selectedImage = file;
+            _selectedImageBytes = bytes;
           });
         }
+        await _runFoodTypeDetection(bytes);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -929,6 +967,29 @@ class _AddFoodListingPageState extends State<AddFoodListingPage> {
         ),
       );
     }
+  }
+
+  Future<void> _runFoodTypeDetection(Uint8List? bytes) async {
+    if (bytes == null) return;
+    setState(() {
+      _isDetectingFoodType = true;
+      _detectionStatus = null;
+    });
+
+    final detectedType = await _foodTypeDetector.detectFoodType(bytes: bytes);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isDetectingFoodType = false;
+      if (detectedType != null) {
+        _selectedFoodType = detectedType;
+        _detectionStatus = 'Detected automatically: $detectedType';
+      } else {
+        _detectionStatus =
+            'Could not detect food type automatically. Please select manually.';
+      }
+    });
   }
 
   Future<void> _submitForm() async {

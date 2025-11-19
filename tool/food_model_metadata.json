@@ -1,0 +1,25 @@
+{
+  "model_name": "food_classifier",
+  "input_size": [224, 224, 3],
+  "dtype": "float32",
+  "preprocessing": {
+    "resize": [224, 224],
+    "scale": "pixel/255",
+    "normalize_mean": [0.485, 0.456, 0.406],
+    "normalize_std": [0.229, 0.224, 0.225]
+  },
+  "label_order": [
+    "Burger",
+    "Donut",
+    "Pizza",
+    "Roasted Chicken",
+    "club sandwich"
+  ],
+  "checkpoint": {
+    "framework": "PyTorch",
+    "architecture": "Ultralytics YOLO11 classification",
+    "format": "state_dict",
+    "wrapper": "UltralyticsClassifyModel",
+    "notes": "Use torch.onnx.export with opset>=13; convert ONNX→TF→TFLite"
+  }
+}

@@ -46,6 +46,9 @@ dependencies:
   flutter_chat_types: ^3.6.2
   file_picker: ^8.0.0+1
   path_provider: ^2.1.2
+  tflite_flutter:
+    path: packages/tflite_flutter_fix
+  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:
@@ -98,8 +101,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - assets/app_icon.png
+  assets:
+    - assets/models/food_classifier.tflite
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
